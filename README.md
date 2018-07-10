@@ -50,3 +50,10 @@ curl -H "Content-type:application/json" --data '{"peer" : "ws://localhost:6001"}
 ```
 curl http://localhost:3001/peers
 ```
+
+## Todo
+- [ ] Increase the difficulty harcoding it (for testing)
+- [ ] Add delay between each trial of mining
+- [ ] Update the timestamp for each test
+- [ ] Remove useless functions and parameters
+- [ ] Update the tutorial
