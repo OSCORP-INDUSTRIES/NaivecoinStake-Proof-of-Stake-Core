@@ -206,8 +206,8 @@ const hasValidHash = (block: Block): boolean => {
         return false;
     }
 
-    if (!hashMatchesDifficulty(block.hash, block.difficulty)) {
-        console.log('block difficulty not satisfied. Expected: ' + block.difficulty + 'got: ' + block.hash);
+    if (!hashLowerThanBalanceOverDifficulty(block.hash, block.difficulty)) {
+        console.log('hash not lower than balance over diffculty times 2^256');
     }
     return true;
 };
@@ -217,10 +217,29 @@ const hashMatchesBlockContent = (block: Block): boolean => {
     return blockHash === block.hash;
 };
 
+// This function is used for proof of work
 const hashMatchesDifficulty = (hash: string, difficulty: number): boolean => {
     const hashInBinary: string = hexToBinary(hash);
     const requiredPrefix: string = '0'.repeat(difficulty);
     return hashInBinary.startsWith(requiredPrefix);
+};
+
+// This function is used for proof of stake
+// Based on `SHA256(prevhash + address + timestamp) <= 2^256 * balance / diff`
+// Cf https://blog.ethereum.org/2014/07/05/stake/
+const hashLowerThanBalanceOverDifficulty = (hash: string, difficulty: number): boolean => {
+    difficulty = difficulty + 1;
+    const balance: number = getAccountBalance() + 1;
+
+    const balanceOverDifficulty: number = Math.pow(2, 256) * balance / difficulty;
+    const decimalHash: number = parseInt(hash, 16);
+    
+    console.log(Math.pow(2, 256));
+    console.log('Account balance = ' + balance);
+    console.log('Difficulty = ' + difficulty);
+    console.log('SHA256(prevhash + address + timestamp) = ' + decimalHash);
+    console.log('2^256 * balance / diff = ' + balanceOverDifficulty);
+    return decimalHash <= balanceOverDifficulty;
 };
 
 /*
