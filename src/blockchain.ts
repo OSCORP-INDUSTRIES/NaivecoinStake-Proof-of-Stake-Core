@@ -156,7 +156,8 @@ const calculateHashForBlock = (block: Block): string =>
 
 const calculateHash = (index: number, previousHash: string, timestamp: number, data: Transaction[],
                        difficulty: number, nonce: number): string =>
-    CryptoJS.SHA256(index + previousHash + timestamp + data + difficulty + nonce).toString();
+    CryptoJS.SHA256(index + previousHash + getPublicFromWallet() + data + timestamp).toString();
+    // The hash for Proof of Stake does not include a nonce to avoid more than one trial per second
 
 const isValidBlockStructure = (block: Block): boolean => {
     return typeof block.index === 'number'
