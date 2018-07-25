@@ -55,5 +55,5 @@ curl http://localhost:3001/peers
 - [x] Increase the difficulty harcoding it (for testing)
 - [x] Add delay between each trial of mining
 - [x] Update the timestamp for each test
-- [ ] Remove useless functions and parameters (like nonce)
+- [x] Remove useless functions and parameters (like nonce)
 - [ ] Update the tutorial
