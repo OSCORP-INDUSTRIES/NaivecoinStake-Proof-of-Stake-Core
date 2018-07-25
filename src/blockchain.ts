@@ -130,13 +130,18 @@ const generatenextBlockWithTransaction = (receiverAddress: string, amount: numbe
 
 const findBlock = (index: number, previousHash: string, data: Transaction[], difficulty: number): Block => {
     let nonce = 0;
+    let pastTimestamp: number = 0;
     while (true) {
         let timestamp: number = getCurrentTimestamp();
-        const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty, nonce);
-        if (hashMatchesDifficulty(hash, difficulty)) {
-            return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
+        // Since the nonce it's not changing we should calculate the hash only each second
+        if(pastTimestamp !== timestamp) {
+            const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty, nonce);
+            if (hashMatchesDifficulty(hash, difficulty)) {
+                return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
+            }
+            pastTimestamp = timestamp;
+            nonce++;
         }
-        nonce++;
     }
 };
 
