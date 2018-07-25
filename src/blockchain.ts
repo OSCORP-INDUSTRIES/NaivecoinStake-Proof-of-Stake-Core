@@ -54,7 +54,6 @@ const getUnspentTxOuts = (): UnspentTxOut[] => _.cloneDeep(unspentTxOuts);
 
 // and txPool should be only updated at the same time
 const setUnspentTxOuts = (newUnspentTxOut: UnspentTxOut[]) => {
-    console.log('replacing unspentTxouts with: %s', newUnspentTxOut);
     unspentTxOuts = newUnspentTxOut;
 };
 
@@ -233,17 +232,11 @@ const hashMatchesDifficulty = (hash: string, difficulty: number): boolean => {
 // Based on `SHA256(prevhash + address + timestamp) <= 2^256 * balance / diff`
 // Cf https://blog.ethereum.org/2014/07/05/stake/
 const hashLowerThanBalanceOverDifficulty = (hash: string, difficulty: number): boolean => {
-    difficulty = difficulty + 1;
+    difficulty = difficulty + 1;    
     const balance: number = getAccountBalance() + 1;
-
     const balanceOverDifficulty: number = Math.pow(2, 256) * balance / difficulty;
     const decimalHash: number = parseInt(hash, 16);
     
-    console.log(Math.pow(2, 256));
-    console.log('Account balance = ' + balance);
-    console.log('Difficulty = ' + difficulty);
-    console.log('SHA256(prevhash + address + timestamp) = ' + decimalHash);
-    console.log('2^256 * balance / diff = ' + balanceOverDifficulty);
     return decimalHash <= balanceOverDifficulty;
 };
 
