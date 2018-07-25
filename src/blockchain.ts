@@ -135,7 +135,7 @@ const findBlock = (index: number, previousHash: string, data: Transaction[], dif
         let timestamp: number = getCurrentTimestamp();
         // Since the nonce it's not changing we should calculate the hash only each second
         if(pastTimestamp !== timestamp) {
-            const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty, nonce);
+            const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty);
             if (hashMatchesDifficulty(hash, difficulty)) {
                 return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
             }
@@ -157,10 +157,10 @@ const sendTransaction = (address: string, amount: number): Transaction => {
 };
 
 const calculateHashForBlock = (block: Block): string =>
-    calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
+    calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty);
 
 const calculateHash = (index: number, previousHash: string, timestamp: number, data: Transaction[],
-                       difficulty: number, nonce: number): string =>
+                       difficulty: number): string =>
     CryptoJS.SHA256(index + previousHash + getPublicFromWallet() + data + timestamp).toString();
     // The hash for Proof of Stake does not include a nonce to avoid more than one trial per second
 
