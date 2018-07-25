@@ -94,8 +94,7 @@ const generateRawNextBlock = (blockData: Transaction[]) => {
     const previousBlock: Block = getLatestBlock();
     const difficulty: number = getDifficulty(getBlockchain());
     const nextIndex: number = previousBlock.index + 1;
-    const nextTimestamp: number = getCurrentTimestamp();
-    const newBlock: Block = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty);
+    const newBlock: Block = findBlock(nextIndex, previousBlock.hash, blockData, difficulty);
     if (addBlockToChain(newBlock)) {
         broadcastLatest();
         return newBlock;
@@ -129,9 +128,10 @@ const generatenextBlockWithTransaction = (receiverAddress: string, amount: numbe
     return generateRawNextBlock(blockData);
 };
 
-const findBlock = (index: number, previousHash: string, timestamp: number, data: Transaction[], difficulty: number): Block => {
+const findBlock = (index: number, previousHash: string, data: Transaction[], difficulty: number): Block => {
     let nonce = 0;
     while (true) {
+        let timestamp: number = getCurrentTimestamp();
         const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty, nonce);
         if (hashMatchesDifficulty(hash, difficulty)) {
             return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
