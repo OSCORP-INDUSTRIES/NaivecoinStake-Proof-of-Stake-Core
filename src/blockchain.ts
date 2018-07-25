@@ -135,7 +135,7 @@ const findBlock = (index: number, previousHash: string, data: Transaction[], dif
         // Since the nonce it's not changing we should calculate the hash only each second
         if(pastTimestamp !== timestamp) {
             const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty);
-            if (hashMatchesDifficulty(hash, difficulty)) {
+            if (hashLowerThanBalanceOverDifficulty(hash, difficulty)) {
                 return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
             }
             pastTimestamp = timestamp;
@@ -221,7 +221,7 @@ const hashMatchesBlockContent = (block: Block): boolean => {
     return blockHash === block.hash;
 };
 
-// This function is used for proof of work
+// This function is used for proof of work (so not used anymore, I kept it below just to compare them)
 const hashMatchesDifficulty = (hash: string, difficulty: number): boolean => {
     const hashInBinary: string = hexToBinary(hash);
     const requiredPrefix: string = '0'.repeat(difficulty);
