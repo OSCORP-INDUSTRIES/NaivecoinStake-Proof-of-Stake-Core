@@ -138,6 +138,7 @@ const findBlock = (index: number, previousHash: string, data: Transaction[], dif
         let timestamp: number = getCurrentTimestamp();
         // Since the nonce it's not changing we should calculate the hash only each second
         if(pastTimestamp !== timestamp) {
+            let hash: string = calculateHash(index, previousHash, timestamp, data, difficulty, getAccountBalance(), getPublicFromWallet());
             if (isBlockStakingValid(previousHash, getPublicFromWallet(), timestamp, getAccountBalance(), difficulty)) {
                 return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce, getAccountBalance(), getPublicFromWallet());
             }
