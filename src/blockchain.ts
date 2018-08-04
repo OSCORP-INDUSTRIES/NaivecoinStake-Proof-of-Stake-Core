@@ -17,9 +17,11 @@ class Block {
     public data: Transaction[];
     public difficulty: number;
     public nonce: number;
+    public minterBalance: number; // hack to avoid recaculating the balance of the minter at a precise height
+    public minterAddress: string;
 
     constructor(index: number, hash: string, previousHash: string,
-                timestamp: number, data: Transaction[], difficulty: number, nonce: number) {
+                timestamp: number, data: Transaction[], difficulty: number, nonce: number, minterBalance: number, minterAddress: string) {
         this.index = index;
         this.previousHash = previousHash;
         this.timestamp = timestamp;
@@ -27,6 +29,8 @@ class Block {
         this.hash = hash;
         this.difficulty = difficulty;
         this.nonce = nonce;
+        this.minterBalance = minterBalance;
+        this.minterAddress = minterAddress;
     }
 }
 
@@ -40,7 +44,7 @@ const genesisTransaction = {
 };
 
 const genesisBlock: Block = new Block(
-    0, '91a73664bc84c0baa1fc75ea6e4aa6d1d20c5df664c724e3159aefc2e1186627', '', 1465154705, [genesisTransaction], 0, 0
+    0, '91a73664bc84c0baa1fc75ea6e4aa6d1d20c5df664c724e3159aefc2e1186627', '', 1465154705, [genesisTransaction], 0, 0, 0, "04bfcab8722991ae774db48f934ca79cfb7dd991229153b9f732ba5334aafcd8e7266e47076996b55a14bf9913ee3145ce0cfc1372ada8ada74bd287450313534a"
 );
 
 let blockchain: Block[] = [genesisBlock];
@@ -134,9 +138,8 @@ const findBlock = (index: number, previousHash: string, data: Transaction[], dif
         let timestamp: number = getCurrentTimestamp();
         // Since the nonce it's not changing we should calculate the hash only each second
         if(pastTimestamp !== timestamp) {
-            const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty);
-            if (hashLowerThanBalanceOverDifficulty(hash, difficulty)) {
-                return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
+            if (isBlockStakingValid(previousHash, getPublicFromWallet(), timestamp, getAccountBalance(), difficulty)) {
+                return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce, getAccountBalance(), getPublicFromWallet());
             }
             pastTimestamp = timestamp;
             nonce++;
@@ -156,11 +159,11 @@ const sendTransaction = (address: string, amount: number): Transaction => {
 };
 
 const calculateHashForBlock = (block: Block): string =>
-    calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty);
+    calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.minterBalance, block.minterAddress);
 
 const calculateHash = (index: number, previousHash: string, timestamp: number, data: Transaction[],
-                       difficulty: number): string =>
-    CryptoJS.SHA256(index + previousHash + getPublicFromWallet() + data + timestamp).toString();
+                       difficulty: number, minterBalance: number, minterAddress: string): string =>
+    CryptoJS.SHA256(index + previousHash + timestamp + data + difficulty + minterBalance + minterAddress).toString();
     // The hash for Proof of Stake does not include a nonce to avoid more than one trial per second
 
 const isValidBlockStructure = (block: Block): boolean => {
@@ -210,8 +213,8 @@ const hasValidHash = (block: Block): boolean => {
         return false;
     }
 
-    if (!hashLowerThanBalanceOverDifficulty(block.hash, block.difficulty)) {
-        console.log('hash not lower than balance over diffculty times 2^256');
+    if (!isBlockStakingValid(block.previousHash, block.minterAddress, block.minterBalance, block.timestamp, block.difficulty)) {
+        console.log('staking hash not lower than balance over diffculty times 2^256');
     }
     return true;
 };
@@ -221,23 +224,17 @@ const hashMatchesBlockContent = (block: Block): boolean => {
     return blockHash === block.hash;
 };
 
-// This function is used for proof of work (so not used anymore, I kept it below just to compare them)
-const hashMatchesDifficulty = (hash: string, difficulty: number): boolean => {
-    const hashInBinary: string = hexToBinary(hash);
-    const requiredPrefix: string = '0'.repeat(difficulty);
-    return hashInBinary.startsWith(requiredPrefix);
-};
-
 // This function is used for proof of stake
 // Based on `SHA256(prevhash + address + timestamp) <= 2^256 * balance / diff`
 // Cf https://blog.ethereum.org/2014/07/05/stake/
-const hashLowerThanBalanceOverDifficulty = (hash: string, difficulty: number): boolean => {
-    difficulty = difficulty + 1;    
-    const balance: number = getAccountBalance() + 1;
-    const balanceOverDifficulty: number = Math.pow(2, 256) * balance / difficulty;
-    const decimalHash: number = parseInt(hash, 16);
+const isBlockStakingValid = (prevhash: string, address: string, timestamp: number, balance: number, difficulty: number): boolean => {
+    difficulty = difficulty + 1;
+    const balanceIncremented: number = balance + 1; // To give chance to people without any coins
+    const balanceOverDifficulty: number = Math.pow(2, 256) * balanceIncremented / difficulty;
+    const stakingHash: string = CryptoJS.SHA256(prevhash + address + timestamp);
+    const decimalStakingHash: number = parseInt(stakingHash, 16);
     
-    return decimalHash <= balanceOverDifficulty;
+    return decimalStakingHash <= balanceOverDifficulty;
 };
 
 /*
