@@ -5,8 +5,8 @@ import {
     getCoinbaseTransaction, isValidAddress, processTransactions, Transaction, UnspentTxOut
 } from './transaction';
 import {addToTransactionPool, getTransactionPool, updateTransactionPool} from './transactionPool';
-import {hexToBinary} from './util';
 import {createTransaction, findUnspentTxOuts, getBalance, getPrivateFromWallet, getPublicFromWallet} from './wallet';
+import {BigNumber} from 'bignumber.js';
 
 class Block {
 
@@ -235,6 +235,9 @@ const isBlockStakingValid = (prevhash: string, address: string, timestamp: numbe
     const stakingHash: string = CryptoJS.SHA256(prevhash + address + timestamp);
     const decimalStakingHash: number = parseInt(stakingHash, 16);
     
+    console.log(decimalStakingHash);
+    console.log(balanceOverDifficulty);
+
     return decimalStakingHash <= balanceOverDifficulty;
 };
 
