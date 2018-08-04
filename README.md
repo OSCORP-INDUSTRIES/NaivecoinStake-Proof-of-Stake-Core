@@ -12,9 +12,9 @@ npm start
 curl http://localhost:3001/blocks
 ```
 
-##### Mine a block
+##### Mint a block
 ```
-curl -X POST http://localhost:3001/mineBlock
+curl -X POST http://localhost:3001/mintBlock
 ``` 
 
 ##### Send transaction
@@ -27,9 +27,9 @@ curl -H "Content-type: application/json" --data '{"address": "04bfcab8722991ae77
 curl http://localhost:3001/transactionPool
 ```
 
-##### Mine transaction
+##### Mint transaction
 ```
-curl -H "Content-type: application/json" --data '{"address": "04bfcab8722991ae774db48f934ca79cfb7dd991229153b9f732ba5334aafcd8e7266e47076996b55a14bf9913ee3145ce0cfc1372ada8ada74bd287450313534b", "amount" : 35}' http://localhost:3001/mineTransaction
+curl -H "Content-type: application/json" --data '{"address": "04bfcab8722991ae774db48f934ca79cfb7dd991229153b9f732ba5334aafcd8e7266e47076996b55a14bf9913ee3145ce0cfc1372ada8ada74bd287450313534b", "amount" : 35}' http://localhost:3001/mintTransaction
 ```
 
 ##### Get balance
@@ -54,4 +54,4 @@ curl http://localhost:3001/peers
 ## Todo
 - [x] Fix big integer issue
 - [x] Fix balance incremented, only for first blocks
-- [ ] Rename Mine in API to Mint
+- [x] Rename Mine in API to Mint

@@ -54,7 +54,7 @@ const initHttpServer = (myHttpPort: number) => {
         res.send(getMyUnspentTransactionOutputs());
     });
 
-    app.post('/mineRawBlock', (req, res) => {
+    app.post('/mintRawBlock', (req, res) => {
         if (req.body.data == null) {
             res.send('data parameter is missing');
             return;
@@ -67,7 +67,7 @@ const initHttpServer = (myHttpPort: number) => {
         }
     });
 
-    app.post('/mineBlock', (req, res) => {
+    app.post('/mintBlock', (req, res) => {
         const newBlock: Block = generateNextBlock();
         if (newBlock === null) {
             res.status(400).send('could not generate block');
@@ -86,7 +86,7 @@ const initHttpServer = (myHttpPort: number) => {
         res.send({'address': address});
     });
 
-    app.post('/mineTransaction', (req, res) => {
+    app.post('/mintTransaction', (req, res) => {
         const address = req.body.address;
         const amount = req.body.amount;
         try {
