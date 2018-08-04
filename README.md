@@ -53,5 +53,5 @@ curl http://localhost:3001/peers
 
 ## Todo
 - [x] Fix big integer issue
-- [ ] Fix balance incremented, only for first blocks
+- [x] Fix balance incremented, only for first blocks
 - [ ] Rename Mine in API to Mint

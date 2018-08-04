@@ -47,6 +47,9 @@ const genesisBlock: Block = new Block(
     0, '91a73664bc84c0baa1fc75ea6e4aa6d1d20c5df664c724e3159aefc2e1186627', '', 1465154705, [genesisTransaction], 0, 0, 0, "04bfcab8722991ae774db48f934ca79cfb7dd991229153b9f732ba5334aafcd8e7266e47076996b55a14bf9913ee3145ce0cfc1372ada8ada74bd287450313534a"
 );
 
+// Number of blocks that can be minted with accounts without any coins
+const mintingWithoutCoinIndex = 100;
+
 let blockchain: Block[] = [genesisBlock];
 
 // the unspent txOut of genesis block is set to unspentTxOuts on startup
@@ -139,7 +142,7 @@ const findBlock = (index: number, previousHash: string, data: Transaction[], dif
         // Since the nonce it's not changing we should calculate the hash only each second
         if(pastTimestamp !== timestamp) {
             let hash: string = calculateHash(index, previousHash, timestamp, data, difficulty, getAccountBalance(), getPublicFromWallet());
-            if (isBlockStakingValid(previousHash, getPublicFromWallet(), timestamp, getAccountBalance(), difficulty)) {
+            if (isBlockStakingValid(previousHash, getPublicFromWallet(), timestamp, getAccountBalance(), difficulty, index)) {
                 return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce, getAccountBalance(), getPublicFromWallet());
             }
             pastTimestamp = timestamp;
@@ -214,7 +217,7 @@ const hasValidHash = (block: Block): boolean => {
         return false;
     }
 
-    if (!isBlockStakingValid(block.previousHash, block.minterAddress, block.minterBalance, block.timestamp, block.difficulty)) {
+    if (!isBlockStakingValid(block.previousHash, block.minterAddress, block.minterBalance, block.timestamp, block.difficulty, block.index)) {
         console.log('staking hash not lower than balance over diffculty times 2^256');
     }
     return true;
@@ -228,10 +231,15 @@ const hashMatchesBlockContent = (block: Block): boolean => {
 // This function is used for proof of stake
 // Based on `SHA256(prevhash + address + timestamp) <= 2^256 * balance / diff`
 // Cf https://blog.ethereum.org/2014/07/05/stake/
-const isBlockStakingValid = (prevhash: string, address: string, timestamp: number, balance: number, difficulty: number): boolean => {
+const isBlockStakingValid = (prevhash: string, address: string, timestamp: number, balance: number, difficulty: number, index: number): boolean => {
     difficulty = difficulty + 1;
-    const balanceIncremented: number = balance + 1; // To give chance to people without any coins
-    const balanceOverDifficulty = new BigNumber(2).exponentiatedBy(256).times(balanceIncremented).dividedBy(difficulty);
+    
+    // Allow minting without coins for a few blocks
+    if(index <= mintingWithoutCoinIndex) {
+        balance = balance + 1;
+    }
+    
+    const balanceOverDifficulty = new BigNumber(2).exponentiatedBy(256).times(balance).dividedBy(difficulty);
     const stakingHash: string = CryptoJS.SHA256(prevhash + address + timestamp);
     const decimalStakingHash = new BigNumber(stakingHash, 16);
     const difference = balanceOverDifficulty.minus(decimalStakingHash).toNumber();
