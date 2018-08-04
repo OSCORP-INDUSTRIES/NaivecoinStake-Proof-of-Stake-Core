@@ -231,14 +231,12 @@ const hashMatchesBlockContent = (block: Block): boolean => {
 const isBlockStakingValid = (prevhash: string, address: string, timestamp: number, balance: number, difficulty: number): boolean => {
     difficulty = difficulty + 1;
     const balanceIncremented: number = balance + 1; // To give chance to people without any coins
-    const balanceOverDifficulty: number = Math.pow(2, 256) * balanceIncremented / difficulty;
+    const balanceOverDifficulty = new BigNumber(2).exponentiatedBy(256).times(balanceIncremented).dividedBy(difficulty);
     const stakingHash: string = CryptoJS.SHA256(prevhash + address + timestamp);
-    const decimalStakingHash: number = parseInt(stakingHash, 16);
-    
-    console.log(decimalStakingHash);
-    console.log(balanceOverDifficulty);
+    const decimalStakingHash = new BigNumber(stakingHash, 16);
+    const difference = balanceOverDifficulty.minus(decimalStakingHash).toNumber();
 
-    return decimalStakingHash <= balanceOverDifficulty;
+    return difference >= 0;
 };
 
 /*
