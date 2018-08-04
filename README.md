@@ -52,6 +52,5 @@ curl http://localhost:3001/peers
 ```
 
 ## Todo
-- [x] Fix big integer issue
-- [x] Fix balance incremented, only for first blocks
-- [x] Rename Mine in API to Mint
+- [ ] Create method getBalance(height, address) to check the balance of an account at a height h
+- [ ] Replace the use of minterBalance by the method getBalance(height, address)
