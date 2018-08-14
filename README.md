@@ -1,6 +1,8 @@
-# Naivecoin
+# NaivecoinStake
 
-The repository for the naivecoin tutorial: https://lhartikk.github.io/
+A tutorial for building a Proof of Stake cryptocurrency: https://naivecoinstake.learn.uno
+
+Most of this amazing work has been done by Lauri Hartikka, find the original tutorial here: https://lhartikk.github.io 👏
 
 ```
 npm install
