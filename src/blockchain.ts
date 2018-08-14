@@ -170,7 +170,10 @@ const isValidBlockStructure = (block: Block): boolean => {
         && typeof block.hash === 'string'
         && typeof block.previousHash === 'string'
         && typeof block.timestamp === 'number'
-        && typeof block.data === 'object';
+        && typeof block.data === 'object'
+        && typeof block.difficulty === 'number'
+        && typeof block.minterBalance === 'number'
+        && typeof block.minterAddress === 'string';
 };
 
 const isValidNewBlock = (newBlock: Block, previousBlock: Block): boolean => {
